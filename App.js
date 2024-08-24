@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home, Profile, RecipeDetails } from "./src/screens";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,16 +20,18 @@ function HomeStack() {
 
 function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator initialRouteName="HomeStack">
-        <Tab.Screen
-          name="HomeStack"
-          component={HomeStack}
-          options={{ headerShown: false }}
-        />
-        <Tab.Screen name="Profile" component={Profile} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Tab.Navigator initialRouteName="HomeStack">
+          <Tab.Screen
+            name="HomeStack"
+            component={HomeStack}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen name="Profile" component={Profile} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
