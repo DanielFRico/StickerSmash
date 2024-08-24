@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet, SafeAreaView, FlatList, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react-native";
 import React, { startTransition } from "react";
 import { recipes } from "../../recipes";
 
@@ -14,18 +14,10 @@ const CountryItem = ({ item, onPress }) => (
         Estrellas: {item.stars}
       </Text>
       <Text style={styles.author}>
-        Autor: {item.author}
+        Autor: {item.author.name} {item.author.lastname}
       </Text>
     </View>
   </TouchableOpacity>
-);
-
-
-const renderItem = ({ item }) => (
-  <CountryItem
-    item={item}
-    onPress={() => console.log(`País seleccionado: ${JSON.stringify(item)}`)}
-  />
 );
 
 
@@ -80,12 +72,30 @@ const styles = StyleSheet.create({
   },
 });
 
+/*const renderItem = ({ item, navigation }) => (
+  <CountryItem
+    item={item}
+    onPress={() => navigation.navigate('RecipeDetails', {id: item.id})}
+  />
+);*/
 
 export const Home = ({ navigation }) => {
+    
+  const renderItem = ({item}) => (
+    <CountryItem
+      item={item}
+      onPress={() => {
+        navigation.navigate('RecipeDetails', {id: item.id, name: item.name})
+        console.log(`Receta ${item.name} id:${item.id}`)
+      }}
+    />
+  );
+  
   return (
     <View style={styles.container}>
       <FlatList
         data={recipes}
+//        renderItem={({item})=>renderItem({item, navigation})}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
