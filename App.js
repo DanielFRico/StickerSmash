@@ -21,7 +21,11 @@ function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator initialRouteName="HomeStack">
-        <Tab.Screen name="HomeStack" component={HomeStack} />
+        <Tab.Screen
+          name="HomeStack"
+          component={HomeStack}
+          options={{ headerShown: false }}
+        />
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
     </NavigationContainer>
