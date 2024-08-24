@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
-import {Image, StyleSheet, Text, View, Button, Dimensions, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
+import { Image, StyleSheet, Text, View, Button, Dimensions, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 
 //export const RecipeDetails = ({ navigation, recipe }) => {
 export const RecipeDetails = ({ navigation }) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [authorVisible, setAuthorVisible] = useState(false);
+  const [ingredientVisible, setIngredientVisible] = useState(false);
+  const [activeIngredient, setActiveIngredient] = useState({});
   const carouselRef = useRef(null);
 
   const authorR1 = { name: "Pepito", picture: "pepito.jpg" };
@@ -35,9 +37,9 @@ export const RecipeDetails = ({ navigation }) => {
     carouselRef.current.snapToItem(index);
   };
 
-  const renderMenuItem = ({ item, index }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={() => goToSlide(index)}>
-      <Text>{item.title}</Text>
+  const renderIngredientsItem = ({ item, index }) => (
+    <TouchableOpacity style={styles.menuItem} onPress={() => renderingredient(item)}>
+      <Text>{item.description}</Text>
     </TouchableOpacity>
   );
 
@@ -58,26 +60,15 @@ export const RecipeDetails = ({ navigation }) => {
       </ScrollView>
     );
   };
-  /*
-    const renderPagination = () => {
-      return (
-        <Pagination
-          dotsLength={carouselItems.length}
-          activeDotIndex={activeIndex}
-          containerStyle={styles.paginationContainer}
-          dotStyle={styles.paginationDot}
-          inactiveDotStyle={styles.paginationInactiveDot}
-          inactiveDotOpacity={0.4}
-          inactiveDotScale={0.6}
-          tappableDots={true}
-        
-        />
-      );
-    };
-    */
+
+  const renderingredient = (ingredient) => {
+    setActiveIngredient(ingredient);
+    setIngredientVisible(true);
+  }
+
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <ScrollView style={{ flex: 1, }}>
       <Text>Details Screen</Text>
       <Button title="Go back" onPress={() => navigation.goBack()} />
       <View style={styles.container}>
@@ -90,36 +81,74 @@ export const RecipeDetails = ({ navigation }) => {
           onSnapToItem={(index) => setActiveIndex(index)}
         />
         {renderPagination()}
-        <Text style={styles.paginationText}>
-          {`Paso ${activeIndex + 1} de ${recipe.steps.length}`}
+        <Text>
+          Ingredientes:
         </Text>
-        <View style={styles.navigationContainer}>
-          <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
-            <Text>Pasos</Text>
+        <FlatList
+          data={recipe.ingredients}
+          renderItem={renderIngredientsItem}
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.flatListIngredients}
+        />
+        <Text>
+          {`Calificacion : ${recipe.stars}`}
+        </Text>
+        <View>
+          <TouchableOpacity onPress={() => setAuthorVisible(true)}>
+            <Text>A cerca del autor : {recipe.author.name}</Text>
           </TouchableOpacity>
         </View>
         <Modal
           animationType="slide"
           transparent={true}
-          visible={menuVisible}
-          onRequestClose={() => setMenuVisible(false)}
+          visible={authorVisible}
+          onRequestClose={() => setAuthorVisible(false)}
         >
           <View style={styles.modalView}>
-            <FlatList
-              data={recipe.steps}
-              renderItem={renderMenuItem}
-              keyExtractor={(item, index) => index.toString()}
+            <Image
+              style={styles.carouselItemImage}
+              source={{
+                uri: 'https://reactnative.dev/img/tiny_logo.png',
+              }}
+            />
+            <Text style={styles.carouselItemText}>{recipe.author.name}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setAuthorVisible(false)}
+            >
+              <Text>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={ingredientVisible}
+          onRequestClose={() => {
+            setIngredientVisible(false);
+            setActiveIngredient({});
+          }}
+        >
+          <View style={styles.modalView}>
+            <Image
+              style={styles.carouselItemImage}
+              source={{
+                uri: 'https://reactnative.dev/img/tiny_logo.png',
+              }}
             />
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setMenuVisible(false)}
+              onPress={() => {
+                setIngredientVisible(false);
+                setActiveIngredient({});
+              }}
             >
               <Text>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </Modal>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -146,6 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 30
   },
   carouselItem: {
     alignItems: 'center',
@@ -155,11 +185,10 @@ const styles = StyleSheet.create({
     padding: 50,
     marginLeft: 25,
     marginRight: 25,
-    marginBottom: -850,
   },
   carouselItemImage: {
-    width:100,
-    height:100
+    width: 100,
+    height: 100
   },
   carouselItemText: {
     fontSize: 10,
@@ -168,7 +197,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    //marginTop: 100,
+  },
+  paginationContainer: {
+    marginBottom: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 50
+  },
+  paginationItem: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+  },
+  paginationItemActive: {
+    backgroundColor: '#2196F3',
+  },
+  paginationText: {
+    fontSize: 12,
+    color: '#333',
+  },
+  paginationTextActive: {
+    color: '#fff',
   },
   navigationButton: {
     padding: 10,
@@ -210,28 +261,7 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 2
   },
-  paginationContainer: {
-    marginTop: -200,
-    marginBottom: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    //paddingVertical: 15,
-  },
-  paginationItem: {
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-  },
-  paginationItemActive: {
-    backgroundColor: '#2196F3',
-  },
-  paginationText: {
-    fontSize: 12,
-    color: '#333',
-  },
-  paginationTextActive: {
-    color: '#fff',
-  },
+  flatListIngredients: {
+    marginBottom: 50
+  }
 });
